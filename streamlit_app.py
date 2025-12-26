@@ -1,8 +1,43 @@
 import streamlit as st
-st.title(":blue[Project LPK 2025]")
-st.header(":orange[Penentuan bilangan ganjil atau genap]")
-number = st.number_input("Insert a number",min_value=0,max_value=1000)
-if number%2==1:
-  st.write("Bilangan",number,"termasuk bilangan ganjil")
-else:
-  st.write("Bilangan",number,"termasuk bilangan genap")
+from ingredients_data import INGREDIENTS_DB
+from detector import auto_detect_ingredients
+
+st.set_page_config(
+    page_title="Food Ingredient Detector",
+    page_icon="🍜"
+)
+
+st.title("🍜 Food Ingredient Auto Detector")
+st.write(
+    "Copy **ingredients dari kemasan makanan instan**, "
+    "sistem akan **mendeteksi otomatis** dan menampilkan "
+    "**manfaat, keamanan, dan risiko**."
+)
+
+input_text = st.text_area(
+    "Masukkan Ingredients",
+    placeholder="Contoh: Gula, Garam, Penguat Rasa (MSG/E621), Pewarna Tartrazin",
+    height=150
+)
+
+if st.button("🔍 Analisis"):
+    if not input_text.strip():
+        st.warning("Silakan masukkan ingredients.")
+    else:
+        detected = auto_detect_ingredients(
+            input_text,
+            INGREDIENTS_DB
+        )
+
+        if not detected:
+            st.error("Tidak ada bahan yang terdeteksi.")
+        else:
+            st.subheader("📊 Hasil Deteksi")
+
+            for ingredient in detected:
+                data = INGREDIENTS_DB[ingredient]
+
+                st.markdown(f"### 🧪 {ingredient.upper()}")
+                st.success(f"**Fungsi:** {data['fungsi']}")
+                st.info(f"**Keamanan:** {data['keamanan']}")
+                st.warning(f"**Risiko:** {data['risiko']}")
